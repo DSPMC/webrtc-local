@@ -1,11 +1,11 @@
-// JavaScript variables holding stream and connection information
+// variables holding stream and connection information
 var localStream, localPeerConnection, remotePeerConnection;
 
-// JavaScript variables associated with HTML5 video elements in the page
+// variables associated with HTML5 video elements in the page
 var localVideo = document.getElementById("localVideo");
 var remoteVideo = document.getElementById("remoteVideo");
 
-// JavaScript variables assciated with call management buttons in the page
+// variables assciated with call management buttons in the page
 var startButton = document.getElementById("startButton");
 var callButton = document.getElementById("callButton");
 var hangupButton = document.getElementById("hangupButton");
@@ -15,7 +15,7 @@ startButton.disabled = false;
 callButton.disabled = true;
 hangupButton.disabled = true;
 
-// Associate JavaScript handlers with click events on the buttons
+// Associate handlers with click events on the buttons
 startButton.onclick = start;
 callButton.onclick = call;
 hangupButton.onclick = hangup;
@@ -28,15 +28,15 @@ var constraints = {
     }
 };
 
-// INIT
+// Init
 function initGetUserMedia() {
 	// Older browsers might not implement mediaDevices at all, so we set an empty object first
 	if (navigator.mediaDevices === undefined) {
 		navigator.mediaDevices = {};
 	}
 
-	// Some browsers partially implement mediaDevices. We can't just assign an object
-	// with getUserMedia as it would overwrite existing properties.
+	// Some browsers partially implement mediaDevices. 
+	// We can't just assign an object with getUserMedia as it would overwrite existing properties.
 	// Here, we will just add the getUserMedia property if it's missing.
 	if (navigator.mediaDevices.getUserMedia === undefined) {
 
@@ -64,6 +64,7 @@ function initRTCPeerConnection() {
 	if (navigator.webkitGetUserMedia) {
 		RTCPeerConnection = RTCPeerConnection || webkitRTCPeerConnection;
 		console.log('using chrome');
+
 	// Firefox support
 	} else if (navigator.mozGetUserMedia) {
 		RTCPeerConnection = RTCPeerConnection || mozRTCPeerConnection;
@@ -78,14 +79,13 @@ function initRTCPeerConnection() {
 }
 
 
-// Utility function for logging information to the JavaScript console
+// Utility function for logging information to the console
 function log(text) {
+
 	console.log("At time: " + (performance.now() / 1000).toFixed(3) + " --> " + text);
-	//
 }
 
 // Callback to be called in case of success...
-// Keep
 function successCallback(mediaStream) {
 	log("Received local stream");
 
@@ -100,10 +100,6 @@ function successCallback(mediaStream) {
 
   	// We can now enable the Call button
 	callButton.disabled = false;
-
-  	/* video.onloadedmetadata = function(e) {
-	    video.play();
-  	}; */
 }
 
 // Callback to be called in case of failures...
@@ -117,7 +113,7 @@ function errorCallback(error){
 function start() {
 	log("Requesting local stream");
 
-	// First of all, disable the Start button on the page
+	// just disable the Start button on the page
 	startButton.disabled = true;
 
 	// Get ready to deal with different browser vendors...
@@ -130,31 +126,24 @@ function start() {
 // Function associated with clicking on the Call button
 // This is enabled upon successful completion of the Start button handler
 function call() {
-	// First of all, disable the Call button on the page...
+	// just disable the Call button on the page...
 	callButton.disabled = true;
 
 	// ...and enable the Hangup button
 	hangupButton.disabled = false;
-
 	log("Starting call");
-	// Note that getVideoTracks() and getAudioTracks() are not currently
-	// supported in Firefox...
-	// ...just use them with Chrome
-	// but now 2017 has supported
-	//if (navigator.webkitGetUserMedia) {
-		// Log info about video and audio device in use
-		if (localStream.getVideoTracks().length > 0) {
-			log('Using video device: ' + localStream.getVideoTracks()[0].label);
-		}
-		if (localStream.getAudioTracks().length > 0) {
-			log('Using audio device: ' + localStream.getAudioTracks()[0].label);
-		}
-	//}
+
+	// Note: getVideoTracks() and getAudioTracks() are not supported by old version of Mozilla (<2015)
+	if (localStream.getVideoTracks().length > 0) {
+		log('Using video device: ' + localStream.getVideoTracks()[0].label);
+	}
+	if (localStream.getAudioTracks().length > 0) {
+		log('Using audio device: ' + localStream.getAudioTracks()[0].label);
+	}
 
 	initRTCPeerConnection();
 
-	// This is an optional configuration string, associated with
-	// NAT traversal setup
+	// This is an optional configuration string, associated with NAT traversal setup
 	var servers = null;
 
 	// Create the local PeerConnection object
@@ -167,18 +156,18 @@ function call() {
 	// Create the remote PeerConnection object
 	remotePeerConnection = new RTCPeerConnection(servers);
 	log("Created remote peer connection object remotePeerConnection");
-	// Add a handler associated with ICE protocol events...
 
+	// Add a handler associated with ICE protocol events...
 	remotePeerConnection.onicecandidate = gotRemoteIceCandidate;
-	// ...and a second handler to be activated as soon as the remote
-	// stream becomes available.
+
+	// ...and a second handler to be activated as soon as the remote stream becomes available.
 	remotePeerConnection.onaddstream = gotRemoteStream;
-	// Add the local stream (as returned by getUserMedia())
-	// to the local PeerConnection.
+
+	// Add the local stream (as returned by getUserMedia()) to the local PeerConnection.
 	localPeerConnection.addStream(localStream);
 	log("Added localStream to localPeerConnection");
-	// We're all set! Create an Offer to be 'sent' to the callee as soon
-	// as the local SDP is ready.
+
+	// We're all set! Create an Offer to be 'sent' to the callee as soon as the local SDP is ready.
 	localPeerConnection.createOffer(gotLocalDescription, onSignalingError);
 }
 
@@ -192,38 +181,41 @@ function gotLocalDescription(description){
 	// Add the local description to the local PeerConnection
 	localPeerConnection.setLocalDescription(description);
 	log("Offer from localPeerConnection: \n" + description.sdp);
+
 	// ...do the same with the 'pseudoremote' PeerConnection
-	// Note: this is the part that will have to be changed if you want
-	// the communicating peers to become remote
+	// Note: this is the part that will have to be changed if you want the communicating peers to become remote
 	// (which calls for the setup of a proper signaling channel)
 	remotePeerConnection.setRemoteDescription(description);
+
 	// Create the Answer to the received Offer based on the 'local' description
 	remotePeerConnection.createAnswer(gotRemoteDescription, onSignalingError);
 }
 
 // Handler to be called when the remote SDP becomes available
 function gotRemoteDescription(description){
-	// Set the remote description as the local description of the
-	// remote PeerConnection.
+	// Set the remote description as the local description of the remote PeerConnection.
 	remotePeerConnection.setLocalDescription(description);
 	log("Answer from remotePeerConnection: \n" + description.sdp);
-	// Conversely, set the remote description as the remote description of the
-	// local PeerConnection
+
+	// Conversely, set the remote description as the remote description of the local PeerConnection
 	localPeerConnection.setRemoteDescription(description);
 }
 
 // Handler to be called when hanging up the call
 function hangup() {
 	log("Ending call");
+
 	// Close PeerConnection(s)
 	localPeerConnection.close();
 	remotePeerConnection.close();
+
 	// Reset local variables
 	localPeerConnection = null;
 	remotePeerConnection = null;
+
 	// Disable Hangup button
 	hangupButton.disabled = true;
-	// Enable Call button to allow for new calls to be established
+	// Enable Call button to allow for new calls
 	callButton.disabled = false;
 }
 

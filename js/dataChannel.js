@@ -1,18 +1,18 @@
-//JavaScript variables associated with send and receive channels
+// variables associated with send and receive channels
 var sendChannel, receiveChannel;
 var localPeerConnectionData, remotePeerConnectionData;
 
-//JavaScript variables associated with demo buttons
+// variables associated with demo buttons
 var startDataButton = document.getElementById("startDataButton");
 var sendDataButton = document.getElementById("sendDataButton");
 var closeDataButton = document.getElementById("closeDataButton");
 
-//On startup, just the Start button must be enabled
+// On startup, just the Start button must be enabled
 startDataButton.disabled = false;
 sendDataButton.disabled = true;
 closeDataButton.disabled = true;
 
-//Associate handlers with buttons
+// Associate handlers with buttons
 startDataButton.onclick = createConnection;
 sendDataButton.onclick = sendData;
 closeDataButton.onclick = closeDataChannels;
@@ -24,12 +24,10 @@ var dataChannelReceive = document.getElementById("dataChannelReceive");
 function createConnection() {
 	initRTCPeerConnection();
 
-	// This is an optional configuration string
-	// associated with NAT traversal setup
+	// This is an optional configuration string associated with NAT traversal setup
 	var servers = null;
 
-	// JavaScript variable associated with proper
-	// configuration of an RTCPeerConnection object:
+	// variable associated with proper configuration of an RTCPeerConnection object:
 	// use DTLS/SRTP
 	var pc_constraints = {
 		'optional': [
@@ -42,12 +40,10 @@ function createConnection() {
 	log("Created local peer connection object, with Data Channel");
 
 	try {
-		// Note: SCTP-based reliable DataChannels supported
-		// in Chrome 29+ !
+		// Note: SCTP-based reliable DataChannels supported in Chrome 29+ !
 		// use {reliable: false} if you have an older version of Chrome
 		sendChannel = localPeerConnectionData.createDataChannel( "sendDataChannel",
 			{reliable: true});
-
 		log('Created reliable send data channel');
 	} catch (e) {
 		alert('Failed to create data channel!');
@@ -67,11 +63,13 @@ function createConnection() {
 
 	// Associate handlers with peer connection ICE events...
 	remotePeerConnectionData.onicecandidate = gotRemoteIceCandidateData;
+
 	// ...and data channel creation event
 	remotePeerConnectionData.ondatachannel = gotReceiveChannel;
 
 	// We're all set! Let's start negotiating a session...
 	localPeerConnectionData.createOffer(gotLocalDescriptionData, onSignalingError);
+
 	// Disable Start button and enable Close button
 	startDataButton.disabled = true;
 	closeDataButton.disabled = false;
@@ -92,6 +90,7 @@ function closeDataChannels() {
 	log('Closed data channel with label: ' + sendChannel.label);
 	receiveChannel.close();
 	log('Closed data channel with label: ' + receiveChannel.label);
+
 	// Close peer connections
 	localPeerConnectionData.close();
 	remotePeerConnectionData.close();
@@ -112,14 +111,13 @@ function closeDataChannels() {
 	dataChannelSend.placeholder = "1: Press Start; 2: Enter text; 3: Press Send.";
 }
 
-// Handler to be called as soon as the local SDP is made available to
-// the application
+// Handler to be called as soon as the local SDP is made available to the application
 function gotLocalDescriptionData(desc) {
-	// Set local SDP as the right (local/remote) description for both local
-	// and remote parties
+	// Set local SDP as the right (local/remote) description for both local and remote parties
 	localPeerConnectionData.setLocalDescription(desc);
 	log('localPeerConnectionData\'s SDP: \n' + desc.sdp);
 	remotePeerConnectionData.setRemoteDescription(desc);
+
 	// Create answer from the remote party, based on the local SDP
 	remotePeerConnectionData.createAnswer(gotRemoteDescriptionData, onSignalingError);
 }
@@ -127,8 +125,7 @@ function gotLocalDescriptionData(desc) {
 // Handler to be called as soon as the remote SDP is made available to
 // the application
 function gotRemoteDescriptionData(desc) {
-	// Set remote SDP as the right (remote/local) description for both local
-	// and remote parties
+	// Set remote SDP as the right (remote/local) description for both local and remote parties
 	remotePeerConnectionData.setLocalDescription(desc);
 	log('Answer from remotePeerConnectionData\'s SDP: \n' + desc.sdp);
 	localPeerConnectionData.setRemoteDescription(desc);
@@ -158,6 +155,7 @@ function gotReceiveChannel(event) {
 	log('Receive Channel Callback: event --> ' + event);
 	// Retrieve channel information
 	receiveChannel = event.channel;
+	
 	// Set handlers for the following events:
 	// (i) open; (ii) message; (iii) close
 	receiveChannel.onopen = handleReceiveChannelStateChange;
