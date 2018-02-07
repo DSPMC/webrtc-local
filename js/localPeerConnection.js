@@ -108,6 +108,7 @@ function successCallback(mediaStream) {
 
 // Callback to be called in case of failures...
 function errorCallback(error){
+
 	console.log("navigator.getUserMedia error: ", error);
 }
 
@@ -182,6 +183,7 @@ function call() {
 }
 
 function onSignalingError(error) {
+
 	console.log('Failed to create signaling message : ' + error.name);
 }
 
@@ -227,7 +229,7 @@ function hangup() {
 
 // Handler to be called as soon as the remote stream becomes available
 function gotRemoteStream(event){
-// Associate the remote video element with the retrieved stream
+	// Associate the remote video element with the retrieved stream
 	if ('srcObject' in remoteVideo) {
 		remoteVideo.srcObject = event.stream;
 		
