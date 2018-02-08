@@ -11,6 +11,9 @@ You must install a web server locally or in public to access the scripts and run
 3. Setup a self-signed SSL certificate and enable it for your host. If you use XAMPP, it's available at `<your-xampp-folder>/apache/conf/ssl.<crt|key>/server.<crt|key>`
 4. Restart your web server and try to access `https://localhost` or another domain name you assigned
 
+## Application
+1. `index.html` with `getUserMedia.js` is only a sample of getUserMedia method implementation.
+2. `local.html` with `localPeerConnection.js` and `dataChannel.js` is sample of communication process between two entities.
 
 [webrtc-adapter]: https://github.com/webrtc/adapter
 [webrtc-sample]: https://github.com/webrtc/samples
